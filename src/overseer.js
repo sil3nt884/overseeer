@@ -9,6 +9,9 @@ const reqeust = require('request');
 const log = (...args) => console.log(`[OVERSEER] ${args}`)
 
 const checkIpBlakcList = (ip) => {
+  if(ip === '::ffff:88.97.10.194') {
+    return  0
+  }
   const ips = fs.readFileSync('blacklist.txt', 'utf8').split('\n');
   const ipsAddress = ips.map(ip => {
     if (!ip.includes('/')) {
@@ -23,7 +26,7 @@ const checkIpBlakcList = (ip) => {
      if(ip.includes('::')) {
        return ip
      }
-     return `::${ip}`
+     return `::ffff:${ip}`
   });
   return merged
     .filter(e => e.includes(ip))
@@ -37,7 +40,7 @@ const getPage = (url) => {
 
 app.get('/*', async (req, res) => {
   const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-  const badPerson = checkIpBlakcList(ip);
+  const badPerson = checkIpBlakcList(ip)
   const url = req.originalUrl;
   if (!badPerson) {
     log('IP ', ip, 'request', url, 'allowed')
